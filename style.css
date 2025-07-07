@@ -1,0 +1,49 @@
+body {
+  font-family: sans-serif;
+  padding: 2rem;
+  background-color: #f7f7f7;
+  color: #333;
+}
+
+h1 {
+  text-align: center;
+}
+
+.scenario {
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.toggle {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1.1rem;
+  background-color: #eee;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 8px 8px 0 0;
+}
+
+.content {
+  display: none;
+  padding: 1rem;
+  border-top: 1px solid #ccc;
+}
+
+.video-pair {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.video-pair video {
+  width: 100%;
+  max-width: 48%;
+  height: auto;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+}
