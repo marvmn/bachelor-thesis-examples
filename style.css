@@ -1,49 +1,97 @@
+:root {
+  --bg-color: #1e1e1e;
+  --card-color: #2b2b2b;
+  --accent: #3c9cff;
+  --text-color: #f0f0f0;
+  --subtle-text: #bbb;
+  --border: #444;
+  --code-bg: #2d2d2d;
+}
+
 body {
-  font-family: sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: 'Segoe UI', sans-serif;
   padding: 2rem;
-  background-color: #3a3a3a;
-  color: #f5f5f5;
+  margin: 0;
 }
 
 h1 {
   text-align: center;
+  margin-bottom: 2rem;
 }
 
 .scenario {
-  margin-bottom: 1rem;
-  border: 1px solid #b5b5b5;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border);
   border-radius: 8px;
-  background: rgb(152, 152, 152);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  background-color: var(--card-color);
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
 }
 
 .toggle {
   width: 100%;
   padding: 1rem;
   font-size: 1.1rem;
-  background-color: #575757;
+  background: none;
+  color: var(--text-color);
   border: none;
   text-align: left;
   cursor: pointer;
-  border-radius: 8px 8px 0 0;
+  outline: none;
+  border-bottom: 1px solid var(--border);
+  background-color: #333;
+  transition: background-color 0.3s ease;
 }
 
-.content {
-  display: none;
+.toggle:hover {
+  background-color: #444;
+}
+
+.toggle.nested {
+  font-size: 1rem;
+  background-color: #2a2a2a;
+  border-top: 1px solid var(--border);
+}
+
+.content,
+.code-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease-out, padding 0.3s ease;
+  padding: 0 1rem;
+}
+
+.content.open,
+.code-content.open {
+  max-height: 1000px; /* large enough to fit content */
   padding: 1rem;
-  border-top: 1px solid #ccc;
 }
 
 .video-pair {
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
+  margin-bottom: 1rem;
 }
 
 .video-pair video {
   width: 100%;
   max-width: 48%;
-  height: auto;
-  border: 1px solid #aaa;
+  border: 1px solid #666;
   border-radius: 4px;
+}
+
+pre {
+  background-color: var(--code-bg);
+  color: #f8f8f2;
+  padding: 1rem;
+  border-radius: 6px;
+  overflow: auto;
+  font-size: 0.9rem;
+  max-height: 400px; /* Limit height so large code doesn’t overflow the page */
+  line-height: 1.4;
+  white-space: pre-wrap; /* Allows line wrapping if desired */
+  word-break: break-word;
 }

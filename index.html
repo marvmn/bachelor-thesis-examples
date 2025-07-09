@@ -24,6 +24,48 @@
             Your browser does not support the video tag.
           </video>
         </div>
+        <div class="code-section">
+          <button class="toggle nested">Show Source Code</button>
+          <div class="code-content">
+            <pre><code class="language-python">
+from expressive_motion_generation import *
+from expressive_motion_generation.effects import *
+from moveit_commander.robot import RobotCommander
+from moveit_commander.move_group import MoveGroupCommander
+
+# initialize MoveIt interface
+robot = RobotCommander()
+move_group = MoveGroupCommander('panda_arm')
+
+# initialize Expressive Planner
+planner = ExpressivePlanner(robot, 'display_robot_state', True)
+
+# get current pose
+joint_state = move_group.get_current_joint_values()
+
+# create motion plan
+planner.plan_target([0.1, 0.6, 0.3], 'panda_arm',
+                    0.6, 0.6, 'position')
+planner.plan_pause(1.0)
+planner.plan_target(joint_state, 'panda_arm',
+                    0.6, 0.6, 'joint')
+
+# execute first time!
+planner.execute()
+
+# modify plan
+planner.get_task_at(0).add_effects(
+    JitterEffect(0.04, 10)
+)
+planner.get_task_at(2).add_effects(
+    JitterEffect(0.06, 10)
+)
+
+# execute again!
+planner.execute()
+
+            </code></pre>
+          </div>
       </div>
     </div>
 
@@ -39,8 +81,61 @@
             <source src="videos/scenario2_versionB.mp4" type="video/mp4">
             Your browser does not support the video tag.
           </video>
-        </div>
+          
       </div>
+      <div class="code-section">
+          <button class="toggle nested">Show Source Code</button>
+          <div class="code-content">
+            <pre><code class="language-python">
+from expressive_motion_generation import *
+from expressive_motion_generation.effects import *
+from moveit_commander.robot import RobotCommander
+from moveit_commander.move_group import MoveGroupCommander
+
+# initialize MoveIt interface
+robot = RobotCommander()
+move_group = MoveGroupCommander('panda_arm')
+
+# initialize Expressive Planner
+planner = ExpressivePlanner(robot, 'display_robot_state', True)
+
+# get current pose
+joint_state = move_group.get_current_joint_values()
+
+# create motion plan
+planner.plan_target([0.1, 0.6, 0.3], 'panda_arm',
+                    0.6, 0.6, 'position')
+planner.plan_pause(1.0)
+planner.plan_target(joint_state, 'panda_arm',
+                    0.6, 0.6, 'joint')
+
+# execute first time!
+planner.execute()
+
+# modify plan
+upper_limits = [joint.max_bound() for joint in (robot.get_joint(joint_name) for joint_name in robot.get_active_joint_names('panda_arm'))]
+lower_limits = [joint.min_bound() for joint in (robot.get_joint(joint_name) for joint_name in robot.get_active_joint_names('panda_arm'))]
+
+
+planner.get_task_at(0).add_effects(
+    ExtentEffect(0.7,
+                 ['g','n','g','p','m','p','i','i'],
+                 upper_limits,
+                 lower_limits)
+)
+planner.get_task_at(2).add_effects(
+    ExtentEffect(0.7,
+                 ['g','n','g','p','m','p','i','i'],
+                 upper_limits,
+                 lower_limits)
+)
+
+# execute again!
+planner.execute()
+
+            </code></pre>
+          </div>
+        </div>
     </div>
 
     <div class="scenario">
@@ -56,9 +151,73 @@
             Your browser does not support the video tag.
           </video>
         </div>
+        <div class="code-section">
+          <button class="toggle nested">Show Source Code</button>
+          <div class="code-content">
+            <pre><code class="language-python">
+from expressive_motion_generation import *
+from expressive_motion_generation.effects import *
+from expressive_motion_generation.utils import *
+from moveit_commander.robot import RobotCommander
+from moveit_commander.move_group import MoveGroupCommander
+from copy import deepcopy
+
+# initialize MoveIt interface
+robot = RobotCommander()
+move_group = MoveGroupCommander('panda_arm')
+
+# initialize Expressive Planner
+planner = ExpressivePlanner(robot, '/move_group/fake_controller_joint_states', False)
+planner_display = ExpressivePlanner(robot, 'display_robot_state', True)
+
+# get current pose
+ready_state = move_group.get_current_joint_values()
+
+# first move into gaze pose
+planner.add_task(
+    make_point_at_task_from(robot, 'panda_arm',
+                            [1.0, 0.0, 0.5],
+                            'panda_hand',
+                            ready_state,
+                            1.0)
+)
+planner.execute()
+pose = move_group.get_current_pose().pose
+joint_state = planner.get_last_joint_state()
+
+# create motion plan
+pose.position.y += 0.2
+pose.position.z -= 0.1
+planner.plan_target(pose, 'panda_arm',
+                    0.6, 0.6, 'pose')
+planner.plan_pause(1.0)
+
+planner_display.plan = deepcopy(planner.plan)
+planner_display.execute()
+
+# get current pose
+joint_state = move_group.get_current_joint_values()
+
+# modify plan
+
+planner_display.get_task_at(1).add_effects(
+    GazeEffect([1.0, 0.0, 0.5], 'panda_hand', 'panda_arm')
+)
+
+# execute again!
+planner_display.execute()
+
+planner.new_plan()
+planner.plan_target(ready_state, 'panda_arm',
+                    0.6, 0.6, 'joint')
+planner.execute()
+
+
+            </code></pre>
+          </div>
       </div>
     </div>
-  </div>
+  
 
   <div class="scenario">
       <button class="toggle">Bezier Curve</button>
@@ -72,9 +231,53 @@
             <source src="videos/scenario2_versionB.mp4" type="video/mp4">
             Your browser does not support the video tag.
           </video>
+          </div>
+          <div class="code-section">
+          <button class="toggle nested">Show Source Code</button>
+          <div class="code-content">
+            <pre><code class="language-python">
+from expressive_motion_generation import *
+from expressive_motion_generation.effects import *
+from moveit_commander.robot import RobotCommander
+from moveit_commander.move_group import MoveGroupCommander
+
+# initialize MoveIt interface
+robot = RobotCommander()
+move_group = MoveGroupCommander('panda_arm')
+
+# initialize Expressive Planner
+planner = ExpressivePlanner(robot, 'display_robot_state', True)
+
+# get current pose
+joint_state = move_group.get_current_joint_values()
+
+# create motion plan
+planner.plan_target([0.1, 0.6, 0.3], 'panda_arm',
+                    0.6, 0.6, 'position')
+planner.plan_pause(1.0)
+planner.plan_target(joint_state, 'panda_arm',
+                    0.6, 0.6, 'joint')
+
+# execute first time!
+planner.execute()
+
+# modify plan
+planner.get_task_at(0).add_effects(
+    JitterEffect(0.04, 10)
+)
+planner.get_task_at(2).add_effects(
+    JitterEffect(0.06, 10)
+)
+
+# execute again!
+planner.execute()
+
+            </code></pre>
+          
         </div>
       </div>
     </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
