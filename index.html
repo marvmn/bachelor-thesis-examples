@@ -238,8 +238,10 @@ planner.execute()
             <pre><code class="language-python">
 from expressive_motion_generation import *
 from expressive_motion_generation.effects import *
+from expressive_motion_generation.utils import *
 from moveit_commander.robot import RobotCommander
 from moveit_commander.move_group import MoveGroupCommander
+from copy import deepcopy
 
 # initialize MoveIt interface
 robot = RobotCommander()
@@ -249,24 +251,24 @@ move_group = MoveGroupCommander('panda_arm')
 planner = ExpressivePlanner(robot, 'display_robot_state', True)
 
 # get current pose
-joint_state = move_group.get_current_joint_values()
+ready_state = move_group.get_current_joint_values()
 
-# create motion plan
-planner.plan_target([0.1, 0.6, 0.3], 'panda_arm',
-                    0.6, 0.6, 'position')
-planner.plan_pause(1.0)
-planner.plan_target(joint_state, 'panda_arm',
-                    0.6, 0.6, 'joint')
+# first move into gaze pose
+planner.add_task(
+    make_point_at_task_from(robot, 'panda_arm',
+                            [1.0, 0.0, 0.5],
+                            'panda_hand',
+                            ready_state,
+                            1.0)
+)
+planner.plan_pause(1)
+planner.execute(debug_output=True)
 
-# execute first time!
-planner.execute()
 
 # modify plan
+
 planner.get_task_at(0).add_effects(
-    JitterEffect(0.04, 10)
-)
-planner.get_task_at(2).add_effects(
-    JitterEffect(0.06, 10)
+    BezierCurveEffect(0, -1, [0, 0.5], [1, 0.5])
 )
 
 # execute again!
